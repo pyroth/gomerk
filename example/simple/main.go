@@ -1,53 +1,44 @@
 // Simple Merkle Tree Example
 //
-// Demonstrates basic usage of SimpleMerkleTree for Bytes32 values.
+// Demonstrates SimpleMerkleTree with raw bytes32 values and custom hashing.
 package main
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/pyroth/gomerk"
 )
 
 func main() {
-	// Create leaf values (32-byte hashes)
+	// Custom hashed values
 	values := []gomerk.Bytes32{
-		gomerk.MustHexToBytes32("0x0000000000000000000000000000000000000000000000000000000000000001"),
-		gomerk.MustHexToBytes32("0x0000000000000000000000000000000000000000000000000000000000000002"),
-		gomerk.MustHexToBytes32("0x0000000000000000000000000000000000000000000000000000000000000003"),
-		gomerk.MustHexToBytes32("0x0000000000000000000000000000000000000000000000000000000000000004"),
+		gomerk.Keccak256([]byte("alice")),
+		gomerk.Keccak256([]byte("bob")),
+		gomerk.Keccak256([]byte("charlie")),
+		gomerk.Keccak256([]byte("dave")),
 	}
 
-	// Build tree (sorted leaves for deterministic root)
-	tree, err := gomerk.NewSimpleMerkleTree(values, true)
-	if err != nil {
-		panic(err)
-	}
+	tree := must(gomerk.NewSimpleMerkleTree(values, true))
 
-	fmt.Println("=== Simple Merkle Tree ===")
-	fmt.Println("Root:", tree.Root())
-	fmt.Println("Leaves:", tree.Len())
+	fmt.Printf("Root:   %s\n", tree.Root())
+	fmt.Printf("Leaves: %d\n\n", tree.Len())
 
 	// Generate and verify proof
-	leaf := values[0]
-	proof, _ := tree.GetProof(leaf)
-	fmt.Println("\nProof for leaf 0:", proof)
+	proof := must(tree.GetProof(values[0]))
+	fmt.Printf("Proof for alice: %v\n\n", proof)
 
-	valid, _ := tree.Verify(leaf, proof)
-	fmt.Println("Verified:", valid)
+	fmt.Printf("Tree verify:   %v\n", must(tree.Verify(values[0], proof)))
+	fmt.Printf("Static verify: %v\n\n", must(gomerk.VerifySimple(tree.Root(), values[0], proof)))
 
-	// Static verification (without tree instance)
-	valid, _ = gomerk.VerifySimple(tree.Root(), leaf, proof)
-	fmt.Println("Static verify:", valid)
+	// Tree visualization
+	fmt.Println("Tree structure:")
+	fmt.Println(must(tree.Render()))
+}
 
-	// Iterate over all values
-	fmt.Println("\nAll values:")
-	for i, v := range tree.All() {
-		fmt.Printf("  [%d] %s\n", i, v)
+func must[T any](v T, err error) T {
+	if err != nil {
+		log.Fatal(err)
 	}
-
-	// Render tree structure
-	fmt.Println("\nTree structure:")
-	rendered, _ := tree.Render()
-	fmt.Println(rendered)
+	return v
 }
