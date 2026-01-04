@@ -2,9 +2,9 @@
 
 **A Go library to generate merkle trees and merkle proofs.**
 
-Well suited for airdrops and similar mechanisms in combination with Solidity [`MerkleProof`] utilities.
+Well suited for airdrops and similar mechanisms in combination with Solidity [`OpenZeppelin MerkleProof`] utilities.
 
-[`MerkleProof`]: https://docs.openzeppelin.com/contracts/4.x/api/utils#MerkleProof
+[`OpenZeppelin MerkleProof`]: https://docs.openzeppelin.com/contracts/4.x/api/utils#MerkleProof
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/pyroth/gomerk.svg)](https://pkg.go.dev/github.com/pyroth/gomerk)
 
@@ -46,7 +46,7 @@ fmt.Println("Proof:", proof)
 
 ### Validating a Proof in Solidity
 
-Once the proof has been generated, it can be validated in Solidity using [`MerkleProof`] as in the following example:
+Once the proof has been generated, it can be validated in Solidity using [`OpenZeppelin MerkleProof`] as in the following example:
 
 ```solidity
 pragma solidity ^0.8.4;
@@ -78,7 +78,7 @@ contract Verifier {
 
 1. Store the tree root in your contract.
 2. Compute the [leaf hash](#leaf-hash) for the provided `addr` and `amount` ABI encoded values.
-3. Verify it using [`MerkleProof`]'s `verify` function.
+3. Verify it using [`OpenZeppelin MerkleProof`]'s `verify` function.
 4. Use the verification to make further operations on the contract. (Consider you may want to add a mechanism to prevent reuse of a leaf).
 
 ## Standard Merkle Trees
